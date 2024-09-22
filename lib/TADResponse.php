@@ -97,10 +97,7 @@ class TADResponse
     public function set_response($response='')
     {
         // remove any non-utf8 char and white spaces
-        $response = preg_replace('/[\x80-\xFF]/', '', $response);
-        $response = preg_replace('/\s+</', '<', $response);
-        $response = preg_replace('/>\s+/', '>', $response);
-        $response = str_replace("\x08", "", $response);
+        $response = $this->utf8_filter($response);
 
         if ($this->is_there_no_data($response)) {
             !$this->is_no_data_response($response) && $response = $this->build_no_data_response($response);
@@ -115,6 +112,10 @@ class TADResponse
         }
 
         $this->response_body = $response;
+    }
+
+    function utf8_filter(string $value): string{
+        return preg_replace('/[^[:print:]\n]/u', '', mb_convert_encoding($value, $this->encoding, 'UTF-8'));
     }
 
     /**
